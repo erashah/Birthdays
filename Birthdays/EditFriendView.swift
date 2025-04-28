@@ -8,11 +8,45 @@
 import SwiftUI
 
 struct EditFriendView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    var friend: Friend
+    @State private var newName: String
+    @State private var newBirthday: Date
+    @Environment(\.dismiss) private var dismiss
+    
+    init(friend: Friend) {
+        self.friend = friend
+        _newName = State(initialValue: friend.name)
+        _newBirthday = State(initialValue: friend.birthday)
     }
+    
+    var body: some View {
+        Form {
+            TextField("Name", text: $newName)
+            DatePicker("Birthday", selection: $newBirthday, displayedComponents: .date)
+        }
+        .navigationTitle("Edit Friend")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    friend.name = newName
+                    friend.birthday = newBirthday
+                    dismiss()
+                }
+            }
+        }
+    }
+    
+    
 }
 
 #Preview {
-    EditFriendView()
+    NavigationStack {
+        EditFriendView(friend: Friend(name: "Test", birthday: Date.now))
+    }
 }
