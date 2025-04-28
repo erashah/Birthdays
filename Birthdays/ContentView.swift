@@ -9,11 +9,7 @@ import SwiftUI
 import SwiftData // framework for data modeling & management
 
 struct ContentView: View {
-    @Query private var friends: [Friend] = [
-        Friend(name: "Taylor Swift", birthday: .now),
-        Friend(name: "Selena Gomez", birthday: Date(timeIntervalSince1970: 0)) // date is
-        // given seconds since 1970
-    ]
+    @Query private var friends: [Friend]
     @Environment(\.modelContext) private var context
     
     @State private var newName = ""
@@ -21,12 +17,17 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            List(friends) { friend in
-                HStack {
-                    Text(friend.name)
-                    Spacer() // takes up all available space
-                    Text(friend.birthday, format: .dateTime.month(.wide).day().year())
+            List {
+                ForEach(friends) { friend in
+                    HStack {
+                        HStack {
+                            Text(friend.name)
+                            Spacer() // takes up all available space
+                            Text(friend.birthday, format: .dateTime.month(.wide).day().year())
+                        }
+                    }
                 }
+                .onDelete(perform: deleteFriend)
             }
             .navigationTitle("Birthdays")
             
@@ -42,7 +43,7 @@ struct ContentView: View {
                         let newFriend = Friend(name: newName, birthday: newBirthday)
                         context.insert(newFriend)
                         newName = ""
-                        newDate = .now
+                        newBirthday = Date.now
                     }
                     .bold()
                 }
@@ -51,7 +52,16 @@ struct ContentView: View {
             }
         }
     }
+    
+    func deleteFriend(at offsets: IndexSet) {
+            for index in offsets {
+                    let friendToDelete = friends[index]
+                    context.delete(friendToDelete)
+            }
+    }
 }
+
+
 
 #Preview {
     ContentView()
